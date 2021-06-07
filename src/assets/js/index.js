@@ -28,8 +28,6 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
 }).addTo(mymap); 
 
 keyword.addEventListener('keyup', (event) => {
-<<<<<<< HEAD
-=======
     //console.log(event.currentTarget.value);
 
     villes.innerHTML='';
@@ -89,7 +87,6 @@ keyword.addEventListener('keyup', (event) => {
     });
 
 /*
->>>>>>> 343f81547bd514fcf4d9d0287202923aae765e01
     villes.innerHTML='';
     const url = 'https://places-dsn.algolia.net/1/places/query';
 
@@ -163,8 +160,6 @@ keyword.addEventListener('keyup', (event) => {
 });
 
 
-<<<<<<< HEAD
-=======
 const fetchCarto = async(city, firstWord) => {
     await getMap(city, firstWord)
     fetchMeteo(firstWord);
@@ -196,7 +191,6 @@ const getMap = (city, firstWord) => {
 
 
 //const fetchMeteo = async(lat, lon) => {
->>>>>>> 343f81547bd514fcf4d9d0287202923aae765e01
 const fetchMeteo = async(ville) => {
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${ville}&appid=a3403e94904b36cf48b8a44f8269d8e4`;
     const response = await fetch(url);
