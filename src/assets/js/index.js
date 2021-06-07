@@ -29,6 +29,7 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
 
 keyword.addEventListener('keyup', (event) => {
     //console.log(event.currentTarget.value);
+
     villes.innerHTML='';
     const url = 'https://places-dsn.algolia.net/1/places/query';
 
@@ -42,6 +43,8 @@ keyword.addEventListener('keyup', (event) => {
         const cityList = data.hits;
         const displayedCity = [];
         var displedName = "";
+        let firstWord;
+        let isOk = false;
 
         cityList.forEach(ville => {
             // console.log(ville._geoloc.lat);
@@ -49,7 +52,62 @@ keyword.addEventListener('keyup', (event) => {
             const cityName = ville.locale_names.default[0];
 
             const splittedName = cityName.split(" ", 2);
-            const firstWord = splittedName[0];
+            firstWord = splittedName[0];
+            //console.log(firstWord);
+
+            displedName = firstWord + " (" + ville.country_code + ")";
+            
+            if (!(displayedCity.includes(displedName))) {
+                displayedCity.push(displedName);
+                villes.insertAdjacentHTML('beforeend', `<option value="${displedName}">`);
+            }
+
+            //villes.insertAdjacentHTML('beforeend', `<option value="${displedName}">`);
+            
+        });
+
+        const options = document.querySelectorAll('#villes option');
+        //console.log(options);
+        options.forEach(option => {
+            //console.log(option);
+
+            keyword.addEventListener('change', (event) => {
+                //console.log('click');
+                //console.log(keyword.value);
+
+                cityList.forEach(city => {
+                    //console.log(city);
+                    //console.log(keyword.value);
+                    fetchCarto(city);
+                })
+            });
+        })
+    });
+
+/*
+    villes.innerHTML='';
+    const url = 'https://places-dsn.algolia.net/1/places/query';
+
+    fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({query: event.currentTarget.value })
+    })
+    .then(response => response.json())
+    .then((data) => {
+        //console.log(data.hits);
+        const cityList = data.hits;
+        const displayedCity = [];
+        var displedName = "";
+        let firstWord;
+        let isOk = false;
+
+        cityList.forEach(ville => {
+            // console.log(ville._geoloc.lat);
+            // console.log(ville._geoloc.lng);
+            const cityName = ville.locale_names.default[0];
+
+            const splittedName = cityName.split(" ", 2);
+            firstWord = splittedName[0];
             //console.log(firstWord);
 
             displedName = firstWord + " (" + ville.country_code + ")";
@@ -100,26 +158,67 @@ keyword.addEventListener('keyup', (event) => {
                         }).addTo(mymap); 
 
                         //findMeteo(latitude, longitude);
-                        fetchMeteo(firstWord);
+                        //fetchMeteo(latitude, longitude);
+                        isOk = true
+
+                        fetchCarto();
                     }
-                    
                 });
-
             })
-
-})     
-        
+        })   
+        console.log(isOk);  
+        if(isOk) {
+            fetchMeteo(firstWord);
+        } 
     })
     .catch((e) => {
         console.log(e);
-    })
+    }) */
 });
 
 
+const fetchCarto = async(city) => {
+    var res = keyword.value.split(" ",2);
+    const firstWord = res[0];
+    // console.log(firstWord);
+    // console.log(countryCode);
+
+    if (city.locale_names.default[0] === firstWord) {
+        //console.log(city.locale_names.default[0]);
+        const latitude = city._geoloc.lat;
+        const longitude = city._geoloc.lng;
+
+        mymap.remove();
+        mymap  = L.map('mapid').setView([latitude, longitude], 13);
+        marker = L.marker([latitude, longitude]).addTo(mymap);
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: 'mapbox/streets-v11',
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken: 'pk.eyJ1IjoibWFyaWViYSIsImEiOiJja2tuc2RvMmgzNThtMnBxdXg0dWtlNXZmIn0.03wMZswCenHt5EeuNoCpRQ'
+        }).addTo(mymap); 
+
+        //findMeteo(latitude, longitude);
+        //fetchMeteo(latitude, longitude);
+        isOk = true
+    }
+
+        console.log(isOk);  
+        if(isOk) {
+            fetchMeteo(firstWord);
+        } 
+}
+
+
+//const fetchMeteo = async(lat, lon) => {
 const fetchMeteo = async(ville) => {
     //console.log(ville);
-
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${ville}&appid=a3403e94904b36cf48b8a44f8269d8e4`;
+    const APIkey = 'a3403e94904b36cf48b8a44f8269d8e4';
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${ville}&appid=${APIkey}`;
+    //let url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${APIkey}`;
     const response = await fetch(url);
     const weather = await response.json();
     console.log(weather);
@@ -128,9 +227,13 @@ const fetchMeteo = async(ville) => {
     var celsus = temp - 273.15;
     temperature = celsus.toFixed(0);
     h3.innerHTML = "Température : " + temperature  + "°C";
+    if (temperature > 20){
+        const myNotification = new Notification('Supérieur à 20°C', {
+            body: 'N\'oubliez pas vos lunettes'
+        })
+    }
     displayGraph(weather);
-}
-
+};
 
 /* METEO */
 function findMeteo(lat, lon){
