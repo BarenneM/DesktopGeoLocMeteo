@@ -1,80 +1,64 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100;0,200;0,300;0,400;1,100;1,200;1,300&display=swap');
 
+.flex{
+    display: flex;
+    align-items: center;
+}
+
 *{
     padding: 0;
     margin: 0;
 }
 
-h1, h3, p {
-    padding: 1em;
+html{
     font-family: 'Raleway', sans-serif;
+    font-size: 1rem;
 }
 
 input[type=text], select {
-    width: 10em;
+    width: 15em;
     height: 2em;
     padding: 5px;
     margin: 8px 0;
-    display: inline-block;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-    font-family: 'Raleway', sans-serif !important;
 }
 
 button {
     background-color: white;
-    padding: 4px 10px;
-    color: black;
-    border: 2px solid #188cbd;
+    padding: 0.35em 0.5em;
+    border: 1px solid #188cbd;
     border-radius: 4px;
     transition-duration: 0.4s;
-    font-family: 'Raleway', sans-serif !important
 }
   
 button:hover {
     background-color: #188cbd;
     color: white;
-    font-family: 'Raleway', sans-serif !important
 }
 
-.principal {
+header{
+    justify-content: space-between;
+    height: 5vh;
+    padding: 0.5em 1em;
+}
+
+section:first-of-type{
+    background: #f8edeb;
+    padding: 0.5em 1em;
+}
+
+main {
+    padding: 0;
     display: flex;
-    width: 100em;
-    height: 100em;
-    background-color: #8ec6df;
 }
 
-.sub-principal{
-    display: block;
-}
-
-.contenu {
-    background-image: url("../images/5e79a55f7b50a6162bad7f24.webp");
-    width: 30em;
-    height: 40em;
-}
-
-.formulaire{
+.search{
     padding-left: 1em;
 }
 
 #mapid { 
-    margin: 1em;
-    height: 70.5em;
-    width: 88em;
-}
-
-#carteid { 
-    margin: 1em;
-    height: 500px; 
-    width: 500px;
-}
-
-#titre3 {
-    font-size: 15px;
-}
-
-.map{
-    display: block;
+    height: 95vh;
+    width: 80vw;
 }
