@@ -44,7 +44,6 @@ keyword.addEventListener('keyup', (event) => {
         const displayedCity = [];
         var displedName = "";
         let firstWord;
-        let isOk = false;
 
         cityList.forEach(ville => {
             // console.log(ville._geoloc.lat);
@@ -78,7 +77,10 @@ keyword.addEventListener('keyup', (event) => {
                 cityList.forEach(city => {
                     //console.log(city);
                     //console.log(keyword.value);
-                    fetchCarto(city);
+                    var res = keyword.value.split(" ",2);
+                    const firstWord = res[0];
+                    console.log(firstWord);
+                    fetchCarto(city, firstWord);
                 })
             });
         })
@@ -177,12 +179,12 @@ keyword.addEventListener('keyup', (event) => {
 });
 
 
-const fetchCarto = async(city) => {
-    var res = keyword.value.split(" ",2);
-    const firstWord = res[0];
-    // console.log(firstWord);
-    // console.log(countryCode);
+const fetchCarto = async(city, firstWord) => {
+    await getMap(city, firstWord)
+    fetchMeteo(firstWord);
+}
 
+const getMap = (city, firstWord) => {
     if (city.locale_names.default[0] === firstWord) {
         //console.log(city.locale_names.default[0]);
         const latitude = city._geoloc.lat;
@@ -203,13 +205,7 @@ const fetchCarto = async(city) => {
 
         //findMeteo(latitude, longitude);
         //fetchMeteo(latitude, longitude);
-        isOk = true
     }
-
-        console.log(isOk);  
-        if(isOk) {
-            fetchMeteo(firstWord);
-        } 
 }
 
 
