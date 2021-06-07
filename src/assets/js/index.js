@@ -39,14 +39,17 @@ keyword.addEventListener('keyup', (event) => {
     .then(response => response.json())
     .then((data) => {
         //console.log(data.hits);
-        cityList = data.hits;
-        displayedCity = [];
+        const cityList = data.hits;
+        const displayedCity = [];
         var displedName = "";
 
         cityList.forEach(ville => {
+            // console.log(ville._geoloc.lat);
+            // console.log(ville._geoloc.lng);
             const cityName = ville.locale_names.default[0];
+
             const splittedName = cityName.split(" ", 2);
-            firstWord = splittedName[0];
+            const firstWord = splittedName[0];
             //console.log(firstWord);
 
             displedName = firstWord + " (" + ville.country_code + ")";
@@ -55,98 +58,104 @@ keyword.addEventListener('keyup', (event) => {
                 displayedCity.push(displedName);
                 villes.insertAdjacentHTML('beforeend', `<option value="${displedName}">`);
             }
+
+            //villes.insertAdjacentHTML('beforeend', `<option value="${displedName}">`);
+            
         });
 
         const options = document.querySelectorAll('#villes option');
+        //console.log(options);
         options.forEach(option => {
+            //console.log(option);
 
             keyword.addEventListener('change', (event) => {
                 //console.log('click');
                 //console.log(keyword.value);
+
+                cityList.forEach(city => {
+                    //console.log(city);
+                    //console.log(keyword.value);
+
+                    var res = keyword.value.split(" ",2);
+                    const firstWord = res[0];
+                    // console.log(firstWord);
+                    // console.log(countryCode);
+
+                    if (city.locale_names.default[0] === firstWord) {
+                        //console.log(city.locale_names.default[0]);
+                        const latitude = city._geoloc.lat;
+                        const longitude = city._geoloc.lng;
+
+                        mymap.remove();
+                        mymap  = L.map('mapid').setView([latitude, longitude], 13);
+                        marker = L.marker([latitude, longitude]).addTo(mymap);
+
+                        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+                            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                            maxZoom: 18,
+                            id: 'mapbox/streets-v11',
+                            tileSize: 512,
+                            zoomOffset: -1,
+                            accessToken: 'pk.eyJ1IjoibWFyaWViYSIsImEiOiJja2tuc2RvMmgzNThtMnBxdXg0dWtlNXZmIn0.03wMZswCenHt5EeuNoCpRQ'
+                        }).addTo(mymap); 
+
+                        //findMeteo(latitude, longitude);
+                        fetchMeteo(firstWord);
+                    }
+                    
+                });
+
             })
-        })     
+
+})     
+        
     })
     .catch((e) => {
         console.log(e);
     })
 });
 
-valider.addEventListener('click', ()=> {
 
-    arg = saisie.value;
-    var res = arg.split(" ",2);
-    city = res[0];
+const fetchMeteo = async(ville) => {
+    //console.log(ville);
 
-    cityList.forEach(city => {
-        //console.log(city);
-        //console.log(keyword.value);
-
-        var res = keyword.value.split(" ",2);
-        firstWord = res[0];
-        console.log(firstWord);
-        // console.log(countryCode); 
-        console.log(city.locale_names.default[0])
-        
-        if (city.locale_names.default[0] === firstWord) {
-            //console.log(city.locale_names.default[0]);
-            const latitude = city._geoloc.lat;
-            const longitude = city._geoloc.lng;
-
-            mymap.remove();
-            mymap  = L.map('mapid').setView([latitude, longitude], 13);
-            marker = L.marker([latitude, longitude]).addTo(mymap);
-
-            L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-                maxZoom: 18,
-                id: 'mapbox/streets-v11',
-                tileSize: 512,
-                zoomOffset: -1,
-                accessToken: 'pk.eyJ1IjoibWFyaWViYSIsImEiOiJja2tuc2RvMmgzNThtMnBxdXg0dWtlNXZmIn0.03wMZswCenHt5EeuNoCpRQ'
-            }).addTo(mymap); 
-            //findMeteo(latitude, longitude);
-        }
-    });
-
-    fetchMeteo();
-    
-});
-
-
-const fetchMeteo = async() => {
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=a3403e94904b36cf48b8a44f8269d8e4`;
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${ville}&appid=a3403e94904b36cf48b8a44f8269d8e4`;
     const response = await fetch(url);
     const weather = await response.json();
+    console.log(weather);
     var temp = weather.main.temp;
     //console.log(temp);
     var celsus = temp - 273.15;
     temperature = celsus.toFixed(0);
     h3.innerHTML = "Température : " + temperature  + "°C";
+    displayGraph(weather);
 }
 
 
 /* METEO */
-// function findMeteo(lat, lon){
-//     var APIkey = 'a3403e94904b36cf48b8a44f8269d8e4';
-//     // console.log(lat);
-//     // console.log(lon);
+function findMeteo(lat, lon){
+    var APIkey = 'a3403e94904b36cf48b8a44f8269d8e4';
+    // console.log(lat);
+    // console.log(lon);
 
-//     let url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${APIkey}`;
-//     fetch(url)
-//     .then(response => response.json()
-//     .then((data) => {
-//         //console.log(data);
-//         //displayGraph(data);
-//     }))
-//     .catch((error) => {
-//         console.log(error);
-//     });
-// };
+    let url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${APIkey}`;
+    fetch(url)
+    .then(response => response.json()
+    .then((data) => {
+        console.log(data);
+        //displayGraph(data);
+    }))
+    .catch((error) => {
+        console.log(error);
+    });
+};
 
 function displayGraph(data) {
     var ctx = document.getElementById('myChart').getContext('2d');
     var times = [];
     var temps = [];
+
+    console.log(data);
 
     data.list.forEach((e) => {
         var time = e.dt_txt;
