@@ -2,12 +2,14 @@ const ipcRenderer = require('electron').ipcRenderer;
 const remote = require('electron').remote;
 
 const valider = document.querySelector("#valider");
-const saisie = document.getElementById("keyword");
+const keyword = document.getElementById("keyword");
 
 var window = remote.getCurrentWindow(); // remote module
 
 let arg = null;
 let city;
+
+console.log(keyword);
 
 keyword.addEventListener('keyup', (event) => {
     //console.log(event.currentTarget.value);
@@ -64,24 +66,24 @@ keyword.addEventListener('keyup', (event) => {
     })
 });
 
-valider.addEventListener('click', ()=> {
-    //console.log(saisie.value);
-    arg = saisie.value;
-    //ipcRenderer.send("datasFromForm", arg);
-    var res = arg.split(" ",2);
-    city = res[0]
-    fetchMeteo();
-    //window.close();
-});
+// valider.addEventListener('click', ()=> {
+//     //console.log(saisie.value);
+//     arg = saisie.value;
+//     //ipcRenderer.send("datasFromForm", arg);
+//     var res = arg.split(" ",2);
+//     city = res[0]
+//     fetchMeteo();
+//     //window.close();
+// });
 
-const fetchMeteo = async() => {
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=a3403e94904b36cf48b8a44f8269d8e4`;
-    const response = await fetch(url);
-    const weather = await response.json();
-    var temp = weather.main.temp;
-    //console.log(temp);
-    var celsus = temp - 273.15;
-    let res = celsus.toFixed(0);
-    //console.log(celsus)
-    ipcRenderer.send("datasFromForm", arg, res);
-}
+// const fetchMeteo = async() => {
+//     const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=a3403e94904b36cf48b8a44f8269d8e4`;
+//     const response = await fetch(url);
+//     const weather = await response.json();
+//     var temp = weather.main.temp;
+//     //console.log(temp);
+//     var celsus = temp - 273.15;
+//     let res = celsus.toFixed(0);
+//     //console.log(celsus)
+//     ipcRenderer.send("datasFromForm", arg, res);
+// }

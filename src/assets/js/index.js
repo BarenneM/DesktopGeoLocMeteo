@@ -1,22 +1,19 @@
-const ipcRenderer = require('electron').ipcRenderer;
+const { ipcRenderer } = require('electron')
+const { BrowserWindow } = require('electron').remote
+const path = require('path')
 
+// SELECTORS
+const openAlert = document.querySelector('#open-alert');
+// const openWindow = document.querySelector('#open-window');
 const weatherContainer = document.querySelector('#weather');
+const forecastContainer = document.querySelector('#myChart');
+// const mapContainer = document.querySelector('#mapid');
+const keyword = document.querySelector('input');
+const options = document.querySelectorAll('#villes option');
+const submitSearch = document.querySelector('#submitSearch');
 
 var mymap  = L.map('mapid').setView([51.505, -0.09], 13);
 var marker = L.marker([51.5, -0.09]).addTo(mymap);
-
-let arg = null;
-let ville;
-let temperature;
-let icon;
-let description;
-
-let win;
-let cityList = null;
-let displayedCity = null;
-let firstWord = null;
-
-
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -27,211 +24,100 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
     accessToken: 'pk.eyJ1IjoibWFyaWViYSIsImEiOiJja2tuc2RvMmgzNThtMnBxdXg0dWtlNXZmIn0.03wMZswCenHt5EeuNoCpRQ'
 }).addTo(mymap); 
 
-keyword.addEventListener('keyup', (event) => {
-    //console.log(event.currentTarget.value);
+let city;
+let description;
+let icon;
+let name;
+var myChart;
 
-    villes.innerHTML='';
-    const url = 'https://places-dsn.algolia.net/1/places/query';
-
-    fetch(url, {
-        method: 'POST',
-        body: JSON.stringify({query: event.currentTarget.value })
-    })
-    .then(response => response.json())
-    .then((data) => {
-        //console.log(data.hits);
-        const cityList = data.hits;
-        const displayedCity = [];
-        var displedName = "";
-        let firstWord;
-
-        cityList.forEach(ville => {
-            // console.log(ville._geoloc.lat);
-            // console.log(ville._geoloc.lng);
-            const cityName = ville.locale_names.default[0];
-
-            const splittedName = cityName.split(" ", 2);
-            firstWord = splittedName[0];
-            //console.log(firstWord);
-
-            displedName = firstWord + " (" + ville.country_code + ")";
-            
-            if (!(displayedCity.includes(displedName))) {
-                displayedCity.push(displedName);
-                villes.insertAdjacentHTML('beforeend', `<option value="${displedName}">`);
-            }
-
-            //villes.insertAdjacentHTML('beforeend', `<option value="${displedName}">`);
-            
-        });
-
-        const options = document.querySelectorAll('#villes option');
-        //console.log(options);
-        options.forEach(option => {
-            //console.log(option);
-
-            keyword.addEventListener('change', (event) => {
-                //console.log('click');
-                //console.log(keyword.value);
-
-                cityList.forEach(city => {
-                    //console.log(city);
-                    //console.log(keyword.value);
-                    var res = keyword.value.split(" ",2);
-                    const firstWord = res[0];
-                    console.log(firstWord);
-                    fetchCarto(city, firstWord);
-                })
-            });
-        })
-    });
-
-/*
-    villes.innerHTML='';
-    const url = 'https://places-dsn.algolia.net/1/places/query';
-
-    fetch(url, {
-        method: 'POST',
-        body: JSON.stringify({query: event.currentTarget.value })
-    })
-    .then(response => response.json())
-    .then((data) => {
-        //console.log(data.hits);
-        const cityList = data.hits;
-        const displayedCity = [];
-        var displedName = "";
-
-        cityList.forEach(ville => {
-            // console.log(ville._geoloc.lat);
-            // console.log(ville._geoloc.lng);
-            const cityName = ville.locale_names.default[0];
-
-            const splittedName = cityName.split(" ", 2);
-            const firstWord = splittedName[0];
-            //console.log(firstWord);
-
-            displedName = firstWord + " (" + ville.country_code + ")";
-            
-            if (!(displayedCity.includes(displedName))) {
-                displayedCity.push(displedName);
-                villes.insertAdjacentHTML('beforeend', `<option value="${displedName}">`);
-            }
-
-            //villes.insertAdjacentHTML('beforeend', `<option value="${displedName}">`);
-            
-        });
-
-        const options = document.querySelectorAll('#villes option');
-        
-        options.forEach(option => {
-            keyword.addEventListener('change', (event) => {
-                cityList.forEach(city => {
-                    var res = keyword.value.split(" ",2);
-                    const firstWord = res[0];
-
-                    if (city.locale_names.default[0] === firstWord) {
-                        const latitude = city._geoloc.lat;
-                        const longitude = city._geoloc.lng;
-
-                        mymap.remove();
-                        mymap  = L.map('mapid').setView([latitude, longitude], 13);
-                        marker = L.marker([latitude, longitude]).addTo(mymap);
-
-                        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-                            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-                            maxZoom: 18,
-                            id: 'mapbox/streets-v11',
-                            tileSize: 512,
-                            zoomOffset: -1,
-                            accessToken: 'pk.eyJ1IjoibWFyaWViYSIsImEiOiJja2tuc2RvMmgzNThtMnBxdXg0dWtlNXZmIn0.03wMZswCenHt5EeuNoCpRQ'
-                        }).addTo(mymap); 
-
-                        // fetchMeteo(firstWord);
-                    }
-
-                    fetchMeteo(firstWord);
-                });
-            })
-        })         
-    })
-    .catch((e) => {
-        console.log(e);
-    })
-});
+// let childWindow = null;
 
 
-const fetchCarto = async(city, firstWord) => {
-    await getMap(city, firstWord)
-    fetchMeteo(firstWord);
-}
+// EVENTS
+submitSearch.addEventListener('click', () => {
+    city = keyword.value;
 
-const getMap = (city, firstWord) => {
-    if (city.locale_names.default[0] === firstWord) {
-        //console.log(city.locale_names.default[0]);
-        const latitude = city._geoloc.lat;
-        const longitude = city._geoloc.lng;
+    var res = keyword.value.split(" ",2);
+    const firstWord = res[0];
 
-        mymap.remove();
-        mymap  = L.map('mapid').setView([latitude, longitude], 13);
-        marker = L.marker([latitude, longitude]).addTo(mymap);
-
-        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            maxZoom: 18,
-            id: 'mapbox/streets-v11',
-            tileSize: 512,
-            zoomOffset: -1,
-            accessToken: 'pk.eyJ1IjoibWFyaWViYSIsImEiOiJja2tuc2RvMmgzNThtMnBxdXg0dWtlNXZmIn0.03wMZswCenHt5EeuNoCpRQ'
-        }).addTo(mymap); 
-
-        //findMeteo(latitude, longitude);
-        //fetchMeteo(latitude, longitude);
-    }
-}
+    fetchInfos(city, firstWord);
+})
 
 
-//const fetchMeteo = async(lat, lon) => {
-const fetchMeteo = async(ville) => {
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${ville}&appid=a3403e94904b36cf48b8a44f8269d8e4`;
-    const response = await fetch(url);
-    const weather = await response.json();
-
-    var temp = weather.main.temp;;
-    var celsus = temp - 273.15;
-    temperature = celsus.toFixed(0);
-
-    icon = weather.weather[0].icon;
-    description =  weather.weather[0].description;
+// ipcRenderer.on('weather', (event, city, temperature, description, icon) => {
     
-    weatherContainer.insertAdjacentHTML('beforeend', `
-        <h2>${ville}</h2>
-        <div class="flex" id="details">
+//     weatherContainer.insertAdjacentHTML('beforeend', `
+//         <h2>${city}</h2>
+//         <div class="flex" id="details">
+//             <p>${temperature}°C</p>
+//             <p>${description}</p>
+//             <img src="http://openweathermap.org/img/wn/${icon}.png" alt"${description}">
+//         </div>
+//     `);
+
+//     childWindow.close();
+//     childWindow = undefined;
+// })
+
+// FUNCTIONS
+const fetchInfos = async(city) => {
+    var res = keyword.value.split(" ",2);
+    const firstWord = res[0];
+
+    await getMap(city, firstWord)
+    fetchMeteo(city);
+}
+
+// TODO : Autocomplete
+
+// Meteo
+const fetchMeteo = async(city) => {
+    weatherContainer.innerHTML='';
+
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=ddfed569c0b0f2652ee7810c08c5f405`;
+    const response = await fetch(url);
+    const data = await response.json();
+    const temperature = Math.round(data.main.temp - 273.15);
+
+    let icon = data.weather[0].icon;
+    let description =  data.weather[0].description;
+    
+    weatherContainer.insertAdjacentHTML('afterbegin', `
+        <h2>${city}</h2>
+        <div id="details">
             <p>${temperature}°C</p>
             <img src="http://openweathermap.org/img/wn/${icon}.png" alt"${description}">
         </div>
     `);
-    // displayGraph(weather);
+
+    // Appel prévisions
+    displayGraph(city);
 }
 
+// Previsions
+const displayGraph = async(city) => {
+    forecastContainer.innerHTML = "";
+    
+    const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=ddfed569c0b0f2652ee7810c08c5f405`;
+    const response = await fetch(url);
+    const data = await response.json();
 
-/* METEO */
-function displayGraph(data) {
     var ctx = document.getElementById('myChart').getContext('2d');
     var times = [];
-    var temps = [];
+    var temperatures = [];
 
-    data.list.forEach((e) => {
-        var time = e.dt_txt;
+    // var increment;
+
+    data.list.forEach((item) => {
+        var time = item.dt_txt;
         let hour = time.split(' ', 2)
 
         if (!times.includes(time) && hour[1] === "12:00:00") {
             times.push(time);
-            console.log(times);
         }
-
-        var temp = e.main.temp;
-        var celsus = temp - 273.15;
-        temps.push(celsus);
+        var temperature = item.main.temp;
+        var celsus = temperature - 273.15;
+        temperatures.push(celsus);
     });
 
     var myChart = new Chart(ctx, {
@@ -239,16 +125,28 @@ function displayGraph(data) {
         data: {
             labels: times,
             datasets: [{
-                label: 'Degrés celsus',
-                data: temps,
+                label: 'Temperatures',
+                data: temperatures,
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.5)'
+                    'rgba(255, 99, 132, 0)',
                 ],
-                borderColor: [],
+                borderColor: [
+                    'rgba(0, 0, 0, 1)',
+                ],
                 borderWidth: 1
             }]
         },
         options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Les prévisions sur 5 jours',
+                    padding: {
+                        top: 10,
+                        bottom: 20
+                    }
+                }
+            },
             scales: {
                 yAxes: [{
                     ticks: {
@@ -259,3 +157,41 @@ function displayGraph(data) {
         }
     });
 };
+
+// Map
+const getMap = async(city, firstWord) => {
+    villes.innerHTML='';
+
+    // Villes
+    const url = 'https://places-dsn.algolia.net/1/places/query';
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const cityList = data.hits;
+    
+    // Pour chaque ville, on récupère le nom
+    for(city of cityList){
+        if (city.locale_names.default[0] === firstWord) {
+
+            const latitude = city._geoloc.lat;
+            const longitude = city._geoloc.lng;
+
+            // Carte
+            if( mymap != undefined){
+                mymap.remove();
+            }
+
+            mymap  = L.map('mapid').setView([latitude, longitude], 13);
+            marker = L.marker([latitude, longitude]).addTo(mymap);
+
+            L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                maxZoom: 18,
+                id: 'mapbox/streets-v11',
+                tileSize: 512,
+                zoomOffset: -1,
+                accessToken: 'pk.eyJ1IjoibWFyaWViYSIsImEiOiJja2tuc2RvMmgzNThtMnBxdXg0dWtlNXZmIn0.03wMZswCenHt5EeuNoCpRQ'
+            }).addTo(mymap); 
+        }
+    }
+}

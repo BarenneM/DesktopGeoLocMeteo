@@ -4,35 +4,45 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Météo</title>
-    <link rel="stylesheet" href="../src/assets/css/index.css">
+
+    <!-- APIS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
     integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
     crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
     integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
     crossorigin=""></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet'/>
+
+    <!-- Assets -->
+    <link rel="stylesheet" href="../src/assets/css/index.css">
     <script defer src="../src/assets/js/index.js"></script>
+
+    <title>La chaîne météo</title>
 </head>
 <body>
     <header class="flex">
-        <h1>Météo</h1>
-        <div class="search">
-            <input list="villes" type="text" id="keyword" placeholder="Rechercher">
-            <datalist id="villes"></datalist>
+        <h1>La chaîne météo</h1>
+        <div>
+            <!-- <button id="open-alert">Open alert</button> -->
+            <!-- <button id="open-window">Open window</button> -->
+            <div class="search">
+                <input list="villes" type="text" id="keyword" placeholder="Rechercher">
+                <datalist id="villes"></datalist>
+                <button id="submitSearch">Rechercher</button>
+            </div>
         </div>
     </header>
-    <main class="principal">
-        <section>
-            <div id="weather"></div>
-            <canvas id="myChart"></canvas>
-        </section>
-        <section>
-            <div id="mapid"></div>
-        </section>
+    <main class="flex">
+        <div>
+            <section id="weather"></section>
+            <!-- <section id="forecast"></section> -->
+            <canvas id="myChart" width="300" height="300"></canvas>
+        </div>
+        <div id="mapid"></div>
     </main>
 </body>
 </html>
