@@ -85,7 +85,7 @@ keyword.addEventListener('keyup', (event) => {
             });
         })
     });
-
+});
 /*
     villes.innerHTML='';
     const url = 'https://places-dsn.algolia.net/1/places/query';
@@ -159,7 +159,7 @@ keyword.addEventListener('keyup', (event) => {
     })
 });
 
-
+*/
 const fetchCarto = async(city, firstWord) => {
     await getMap(city, firstWord)
     fetchMeteo(firstWord);
@@ -196,7 +196,8 @@ const fetchMeteo = async(ville) => {
     const response = await fetch(url);
     const weather = await response.json();
 
-    var temp = weather.main.temp;;
+    var temp = weather.main.temp;
+    //var temp = 298;
     var celsus = temp - 273.15;
     temperature = celsus.toFixed(0);
 
@@ -210,12 +211,13 @@ const fetchMeteo = async(ville) => {
             <img src="http://openweathermap.org/img/wn/${icon}.png" alt"${description}">
         </div>
     `);
-    // displayGraph(weather);
+    displayGraph(weather);
 }
 
 
 /* METEO */
 function displayGraph(data) {
+
     var ctx = document.getElementById('myChart').getContext('2d');
     var times = [];
     var temps = [];

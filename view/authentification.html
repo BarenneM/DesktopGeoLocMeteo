@@ -1,0 +1,8 @@
+<main class="flex" id="authentication">
+    <logo></logo>
+    <form @submit.prevent="connect" class="flex" action="" method="">
+        <input type="text" v-model="user" aria-label="Login" placeholder="Login">
+        <input type="password" v-model="password" aria-label="Mot de passe" placeholder="Mot de passe">
+        <button type="submit" class="btn cta">S'authentifier</button>
+    </form>
+</main>
